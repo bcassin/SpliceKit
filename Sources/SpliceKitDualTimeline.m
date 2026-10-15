@@ -786,7 +786,12 @@ static void SpliceKit_dualTimelineSwizzledWindowDidBecomeKey(id self, SEL _cmd, 
     }
 
     if (SpliceKit_dualTimelineEditorModuleForContainer(self)) {
-        SpliceKit_dualTimelineSetFocusedContainer(self, YES);
+        // Only rebind editor state when focus moves to a different editor container. The same
+        // window becomes key again on app switches and when sheets/panels close; rebinding then
+        // calls _makeEditorActive:, which pushes the timeline selection to the inspector and wipes
+        // a browser selection ("Nothing to Inspect" after Cmd-Tab).
+        BOOL switchingContainers = (self != sFocusedEditorContainer);
+        SpliceKit_dualTimelineSetFocusedContainer(self, switchingContainers);
     }
 }
 
